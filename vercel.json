@@ -20,6 +20,14 @@
       "dest": "/icons/$1"
     },
     {
+      "src": "/manifest.json",
+      "dest": "/manifest.json"
+    },
+    {
+      "src": "/favicon.png",
+      "dest": "/favicon.png"
+    },
+    {
       "src": "/(.*)",
       "dest": "/index.html"
     }

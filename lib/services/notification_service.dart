@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationService {
@@ -8,12 +9,22 @@ class NotificationService {
   final _plugin = FlutterLocalNotificationsPlugin();
 
   Future<void> init() async {
+    if (kIsWeb) {
+      // Web platform - skip native notification initialization
+      return;
+    }
+    
     final android = AndroidInitializationSettings('@mipmap/ic_launcher');
     final ios = DarwinInitializationSettings();
     await _plugin.initialize(InitializationSettings(android: android, iOS: ios));
   }
 
   Future<void> showNotification(String title, String body) async {
+    if (kIsWeb) {
+      // Web platform - notifications not supported
+      return;
+    }
+    
     final android = AndroidNotificationDetails('sentrix_alerts', 'Sentrix Alerts', importance: Importance.max, priority: Priority.high);
     final ios = DarwinNotificationDetails();
     await _plugin.show(0, title, body, NotificationDetails(android: android, iOS: ios));
