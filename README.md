@@ -29,7 +29,7 @@ This project is configured for easy deployment to Vercel.
 
 1. Push your code to a Git repository (GitHub, GitLab, or Bitbucket)
 2. Import your repository in the Vercel dashboard
-3. Vercel will automatically detect the Flutter project and use the `vercel.json` configuration
+3. Vercel will automatically detect the configuration and use the `vercel.json` and `vercel-build.sh` files
 4. Click "Deploy" and your app will be built and deployed
 
 ### Deploy via Vercel CLI
@@ -38,4 +38,4 @@ This project is configured for easy deployment to Vercel.
 2. Run `vercel` in the project root directory
 3. Follow the prompts to deploy
 
-The `vercel.json` file in the root directory configures the build process to use the official Flutter builder and properly routes all requests for Flutter web deployment.
+The `vercel.json` file configures the build process to use a custom build script that installs Flutter and builds the web app. The `vercel-build.sh` script handles the Flutter installation and web build process.

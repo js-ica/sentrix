@@ -2,8 +2,12 @@
   "version": 2,
   "builds": [
     {
-      "src": "pubspec.yaml",
-      "use": "@vercel/flutter"
+      "src": "vercel-build.sh",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "build/web",
+        "buildCommand": "bash vercel-build.sh"
+      }
     }
   ],
   "routes": [
