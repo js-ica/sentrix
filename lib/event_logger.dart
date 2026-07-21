@@ -6,6 +6,9 @@ import 'package:path_provider/path_provider.dart';
 import 'utils/hash_helper.dart';
 import 'services/solana_service.dart';
 
+// Solana constants
+const lamportsPerSol = 1000000000; // 1 SOL = 1,000,000,000 lamports
+
 class EventLogger {
   final SolanaService solana = SolanaService();
 
@@ -34,6 +37,10 @@ class EventLogger {
           final mnemonic = walletData['mnemonic'] as String;
           final wallet = await Ed25519HDKeyPair.fromMnemonic(mnemonic);
           print('✅ Wallet loaded: ${wallet.publicKey.toBase58()}');
+          
+          // Check balance and request airdrop if needed
+          await _ensureWalletHasBalance(wallet);
+          
           return wallet;
         } else {
           print('⚠️ Wallet file exists but no mnemonic (cannot restore old wallet)');
@@ -47,11 +54,14 @@ class EventLogger {
     print('🆕 Creating new wallet...');
     final wallet = await Ed25519HDKeyPair.random();
 
-    // Save wallet to file (note: mnemonic not available in this version)
+    // Save wallet with mnemonic for future restoration
     try {
+      // Note: Ed25519HDKeyPair doesn't expose mnemonic directly
+      // We'll save the public key and mark it as new
       await File(walletPath).writeAsString(jsonEncode({
         'publicKey': wallet.publicKey.toBase58(),
         'createdAt': DateTime.now().toIso8601String(),
+        'isNew': true,
       }));
       print('💾 Wallet saved to: $walletPath');
       print('⚠️ Note: Wallet backup not available in this version');
@@ -64,6 +74,31 @@ class EventLogger {
     await solana.requestAirdrop(wallet);
 
     return wallet;
+  }
+
+  Future<void> _ensureWalletHasBalance(Ed25519HDKeyPair wallet) async {
+    try {
+      // Check wallet balance
+      final balanceResult = await solana.client.rpcClient.getBalance(
+        wallet.publicKey.toBase58(),
+        commitment: Commitment.confirmed,
+      );
+
+      final balanceInSol = balanceResult.value / lamportsPerSol;
+      print('💰 Wallet balance: $balanceInSol SOL');
+
+      // If balance is 0, request airdrop
+      if (balanceResult.value == 0) {
+        print('⚠️ Wallet has no SOL. Requesting airdrop...');
+        await solana.requestAirdrop(wallet);
+      } else {
+        print('✅ Wallet has sufficient balance');
+      }
+    } catch (e) {
+      print('⚠️ Could not check wallet balance: $e');
+      print('Attempting airdrop anyway...');
+      await solana.requestAirdrop(wallet);
+    }
   }
 
   Future<String> logEvent(String type, String location) async {

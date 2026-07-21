@@ -29,8 +29,11 @@ class SolanaService {
 
       return signature;
     } catch (e) {
-      print("❌ Airdrop failed: $e");
-      rethrow;
+      print("⚠️ Airdrop request failed.");
+      print("Reason: $e");
+      print("The wallet can still be used if it already has Devnet SOL.");
+
+      return "airdrop_failed";
     }
   }
 

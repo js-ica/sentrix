@@ -14,6 +14,7 @@ import 'screens/about_screen.dart';
 import 'screens/privacy_policy_screen.dart';
 import 'screens/terms_screen.dart';
 import 'widgets/design_system.dart';
+import 'utils/route_validator.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,27 +30,32 @@ class SentrixApp extends StatelessWidget {
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: ThemeService().mode,
       builder: (ctx, mode, _) {
+        final routes = {
+          SplashScreen.routeName: (_) => const SplashScreen(),
+          LoginScreen.routeName: (_) => const LoginScreen(),
+          SignUpScreen.routeName: (context) => const SignUpScreen(),
+          HomeScreen.routeName: (_) => const HomeScreen(),
+          DashboardScreen.routeName: (_) => const DashboardScreen(),
+          AlertsScreen.routeName: (_) => const AlertsScreen(),
+          LiveViewScreen.routeName: (_) => const LiveViewScreen(),
+          HistoryScreen.routeName: (_) => const HistoryScreen(),
+          ControlsScreen.routeName: (_) => const ControlsScreen(),
+          SettingsScreen.routeName: (_) => const SettingsScreen(),
+          AboutScreen.routeName: (_) => const AboutScreen(),
+          PrivacyPolicyScreen.routeName: (_) => const PrivacyPolicyScreen(),
+          TermsScreen.routeName: (_) => const TermsScreen(),
+        };
+
+        // Validate routes for duplicates
+        RouteValidator.validateRoutes(routes);
+
         return MaterialApp(
           title: 'Sentrix',
           theme: DesignSystem.lightTheme,
           darkTheme: DesignSystem.darkTheme,
           themeMode: mode,
           initialRoute: SplashScreen.routeName,
-          routes: {
-            SplashScreen.routeName: (_) => const SplashScreen(),
-            LoginScreen.routeName: (_) => const LoginScreen(),
-            SignUpScreen.routeName: (context) => const SignUpScreen(),
-            HomeScreen.routeName: (_) => const HomeScreen(),
-            DashboardScreen.routeName: (_) => const DashboardScreen(),
-            AlertsScreen.routeName: (_) => const AlertsScreen(),
-            LiveViewScreen.routeName: (_) => const LiveViewScreen(),
-            HistoryScreen.routeName: (_) => const HistoryScreen(),
-            ControlsScreen.routeName: (_) => const ControlsScreen(),
-            SettingsScreen.routeName: (_) => const SettingsScreen(),
-            AboutScreen.routeName: (_) => const AboutScreen(),
-            PrivacyPolicyScreen.routeName: (_) => const PrivacyPolicyScreen(),
-            TermsScreen.routeName: (_) => const TermsScreen(),
-          },
+          routes: routes,
         );
       },
     );
