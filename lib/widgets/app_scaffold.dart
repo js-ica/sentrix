@@ -55,44 +55,6 @@ class AppScaffold extends StatelessWidget {
       ),
       body: SafeArea(child: Padding(padding: const EdgeInsets.all(12.0), child: body)),
       floatingActionButton: floatingActionButton,
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          border: Border(
-            top: BorderSide(
-              color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
-              width: 1,
-            ),
-          ),
-        ),
-        child: SafeArea(
-          child: BottomNavigationBar(
-            currentIndex: currentIndex,
-            type: BottomNavigationBarType.fixed,
-            showUnselectedLabels: true,
-            selectedItemColor: Theme.of(context).colorScheme.primary,
-            unselectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant,
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            selectedFontSize: 12,
-            unselectedFontSize: 12,
-            items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.dashboard_outlined), activeIcon: Icon(Icons.dashboard), label: 'Dashboard'),
-              BottomNavigationBarItem(icon: Icon(Icons.videocam_outlined), activeIcon: Icon(Icons.videocam), label: 'Live'),
-              BottomNavigationBarItem(icon: Icon(Icons.history_outlined), activeIcon: Icon(Icons.history), label: 'History'),
-              BottomNavigationBarItem(icon: Icon(Icons.notifications_outlined), activeIcon: Icon(Icons.notifications), label: 'Alerts'),
-              BottomNavigationBarItem(icon: Icon(Icons.gamepad_outlined), activeIcon: Icon(Icons.gamepad), label: 'Controls'),
-              BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), activeIcon: Icon(Icons.settings), label: 'Settings'),
-            ],
-            onTap: (i) {
-              final route = _routes[i];
-              if (route != ModalRoute.of(context)?.settings.name) {
-                Navigator.pushReplacementNamed(context, route);
-              }
-            },
-          ),
-        ),
-      ),
     );
   }
 }
