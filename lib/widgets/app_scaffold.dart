@@ -34,25 +34,6 @@ class AppScaffold extends StatelessWidget {
     final currentIndex = _currentIndexFromRoute(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-        actions: [
-          ValueListenableBuilder<ThemeMode>(
-            valueListenable: ThemeService().mode,
-            builder: (ctx, mode, _) {
-              final isDark = mode == ThemeMode.dark ||
-                  (mode == ThemeMode.system && MediaQuery.of(context).platformBrightness == Brightness.dark);
-              return IconButton(
-                tooltip: isDark ? 'Switch to light mode' : 'Switch to dark mode',
-                icon: Icon(isDark ? Icons.dark_mode : Icons.light_mode),
-                onPressed: () {
-                  ThemeService().setMode(isDark ? ThemeMode.light : ThemeMode.dark);
-                },
-              );
-            },
-          ),
-        ],
-      ),
       body: SafeArea(child: Padding(padding: const EdgeInsets.all(12.0), child: body)),
       floatingActionButton: floatingActionButton,
     );

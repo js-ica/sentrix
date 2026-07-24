@@ -1,11 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../services/api_service.dart';
 import '../widgets/design_system.dart';
 import '../widgets/app_scaffold.dart';
 
-class LiveViewScreen extends StatelessWidget {
+class LiveViewScreen extends StatefulWidget {
   static const routeName = '/live';
 
   const LiveViewScreen({super.key});
+
+  @override
+  State<LiveViewScreen> createState() => _LiveViewScreenState();
+}
+
+class _LiveViewScreenState extends State<LiveViewScreen> {
+  Future<void> triggerAlarm() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      final userId = prefs.getInt("user_id");
+
+      if (userId == null) return;
+
+      final response = await ApiService.addEvent(
+        userId,
+        "SENTRIX-001",
+        "Intruder Alert",
+        "Alarm triggered from Sentrix app",
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Event saved!\n${response["solanaSignature"]}",
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error: $e"),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,11 +121,14 @@ class LiveViewScreen extends StatelessWidget {
                   const Color(0xFF22C55E),
                   const Color(0xFFF0FFF4),
                 ),
-                _control(
-                  Icons.warning,
-                  'Alarm',
-                  const Color(0xFFEF4444),
-                  const Color(0xFFFFF1F2),
+                GestureDetector(
+                  onTap: triggerAlarm,
+                  child: _control(
+                    Icons.warning,
+                    'Alarm',
+                    const Color(0xFFEF4444),
+                    const Color(0xFFFFF1F2),
+                  ),
                 ),
                 _control(
                   Icons.camera_alt,

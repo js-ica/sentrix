@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/theme_service.dart';
 import 'dashboard_screen.dart';
 import 'live_view_screen.dart';
 import 'history_screen.dart';
@@ -42,6 +43,22 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text(_titles[_currentIndex]),
+        actions: [
+          ValueListenableBuilder<ThemeMode>(
+            valueListenable: ThemeService().mode,
+            builder: (ctx, mode, _) {
+              final isDark = mode == ThemeMode.dark ||
+                  (mode == ThemeMode.system && MediaQuery.of(context).platformBrightness == Brightness.dark);
+              return IconButton(
+                tooltip: isDark ? 'Switch to light mode' : 'Switch to dark mode',
+                icon: Icon(isDark ? Icons.dark_mode : Icons.light_mode),
+                onPressed: () {
+                  ThemeService().setMode(isDark ? ThemeMode.light : ThemeMode.dark);
+                },
+              );
+            },
+          ),
+        ],
       ),
       body: _screens[_currentIndex],
 

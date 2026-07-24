@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../services/api_service.dart';
 import 'home_screen.dart';
 import 'signup_screen.dart';
 
@@ -16,6 +18,85 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController passwordController = TextEditingController();
 
   bool obscurePassword = true;
+  bool isLoading = false;
+
+  Future<void> loginUser() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final response = await ApiService.login(
+        emailController.text.trim(),
+        passwordController.text,
+      );
+
+      if (response.containsKey("token")) {
+        final prefs = await SharedPreferences.getInstance();
+
+        await prefs.setString(
+          "token",
+          response["token"],
+        );
+
+        await prefs.setString(
+          "email",
+          response["email"],
+        );
+
+        await prefs.setString(
+          "full_name",
+          response["full_name"],
+        );
+
+        await prefs.setInt(
+          "user_id",
+          response["id"],
+        );
+
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Login Successful"),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        Navigator.pushReplacementNamed(
+          context,
+          HomeScreen.routeName,
+        );
+      } else {
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              response["message"] ?? "Login failed",
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Error: $e",
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 30),
             child: Column(
               children: [
-                // Logo
+
                 Container(
                   width: 140,
                   height: 140,
@@ -63,7 +144,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   "Sign in to continue",
                   style: TextStyle(
                     color: Color(0xFFA1A1AA),
-                    fontSize: 16,
                   ),
                 ),
 
@@ -74,9 +154,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     hintText: "Email",
-                    hintStyle: const TextStyle(
-                      color: Color(0xFFA1A1AA),
-                    ),
                     prefixIcon: const Icon(
                       Icons.email_outlined,
                       color: Color(0xFF7C3AED),
@@ -98,9 +175,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     hintText: "Password",
-                    hintStyle: const TextStyle(
-                      color: Color(0xFFA1A1AA),
-                    ),
                     prefixIcon: const Icon(
                       Icons.lock_outline,
                       color: Color(0xFF7C3AED),
@@ -127,22 +201,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 15),
-
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {},
-                    child: const Text(
-                      "Forgot Password?",
-                      style: TextStyle(
-                        color: Color(0xFF7C3AED),
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 15),
+                const SizedBox(height: 30),
 
                 SizedBox(
                   width: double.infinity,
@@ -154,23 +213,20 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(15),
                       ),
                     ),
-                    onPressed: () {
-  Navigator.pushReplacementNamed(
-    context,
-    HomeScreen.routeName,
-  );
-},
-                    
-                    
-                    
-                    child: const Text(
-                      "LOGIN",
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+
+                    onPressed: isLoading ? null : loginUser,
+
+                    child: isLoading
+                        ? const CircularProgressIndicator(
+                            color: Colors.white,
+                          )
+                        : const Text(
+                            "LOGIN",
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                 ),
 
@@ -185,6 +241,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         color: Colors.white70,
                       ),
                     ),
+
                     TextButton(
                       onPressed: () {
                         Navigator.pushNamed(
@@ -192,11 +249,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           SignUpScreen.routeName,
                         );
                       },
+
                       child: const Text(
                         "Sign Up",
                         style: TextStyle(
                           color: Color(0xFF7C3AED),
-                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
