@@ -20,97 +20,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   void initState() {
     super.initState();
-    loadDummyHistory();
-  }
-
-  List<Map<String, dynamic>> getDummyHistory() {
-    final now = DateTime.now();
-    return [
-      {
-        "event_type": "Motion Detected",
-        "description": "Front entrance - Motion detected",
-        "device_id": "CAM-001",
-        "created_at": now.subtract(const Duration(minutes: 15)).toIso8601String(),
-        "verified": true,
-      },
-      {
-        "event_type": "Fire Detection",
-        "description": "Kitchen area - Smoke detected",
-        "device_id": "SMK-002",
-        "created_at": now.subtract(const Duration(hours: 2)).toIso8601String(),
-        "verified": true,
-      },
-      {
-        "event_type": "Unknown Face Detected",
-        "description": "Backyard - Unrecognized person",
-        "device_id": "CAM-003",
-        "created_at": now.subtract(const Duration(hours: 3)).toIso8601String(),
-        "verified": true,
-      },
-      {
-        "event_type": "Intruder Alert",
-        "description": "Living room - Suspicious activity",
-        "device_id": "CAM-004",
-        "created_at": now.subtract(const Duration(hours: 5)).toIso8601String(),
-        "verified": true,
-      },
-      {
-        "event_type": "Motion Detected",
-        "description": "Garage - Vehicle movement",
-        "device_id": "CAM-005",
-        "created_at": now.subtract(const Duration(hours: 7)).toIso8601String(),
-        "verified": true,
-      },
-      {
-        "event_type": "Motion Detected",
-        "description": "Side gate - Person walking",
-        "device_id": "CAM-006",
-        "created_at": now.subtract(const Duration(hours: 10)).toIso8601String(),
-        "verified": false,
-      },
-      {
-        "event_type": "Fire Detection",
-        "description": "Garage - Heat signature detected",
-        "device_id": "SMK-007",
-        "created_at": now.subtract(const Duration(hours: 12)).toIso8601String(),
-        "verified": true,
-      },
-      {
-        "event_type": "Water Leak",
-        "description": "Basement - Water sensor triggered",
-        "device_id": "WTR-008",
-        "created_at": now.subtract(const Duration(days: 1)).toIso8601String(),
-        "verified": true,
-      },
-      {
-        "event_type": "Door Open",
-        "description": "Back door - Door left open",
-        "device_id": "DR-009",
-        "created_at": now.subtract(const Duration(days: 1, hours: 4)).toIso8601String(),
-        "verified": false,
-      },
-      {
-        "event_type": "Glass Break",
-        "description": "Side window - Glass breakage detected",
-        "device_id": "SNS-010",
-        "created_at": now.subtract(const Duration(days: 2)).toIso8601String(),
-        "verified": true,
-      },
-      {
-        "event_type": "Temperature Alert",
-        "description": "Bedroom - Unusual temperature",
-        "device_id": "TMP-011",
-        "created_at": now.subtract(const Duration(days: 2, hours: 6)).toIso8601String(),
-        "verified": true,
-      },
-      {
-        "event_type": "Motion Detected",
-        "description": "Driveway - Vehicle detected",
-        "device_id": "CAM-012",
-        "created_at": now.subtract(const Duration(days: 3)).toIso8601String(),
-        "verified": false,
-      },
-    ];
+    loadHistory();
   }
 
   Future<void> loadHistory() async {
@@ -129,17 +39,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
         loading = false;
       });
     }
-  }
-
-  Future<void> loadDummyHistory() async {
-    await Future.delayed(const Duration(milliseconds: 500));
-    
-    if (!mounted) return;
-
-    setState(() {
-      events = getDummyHistory();
-      loading = false;
-    });
   }
 
   IconData getIcon(String eventType) {
