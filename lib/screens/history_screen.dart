@@ -20,7 +20,61 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   void initState() {
     super.initState();
-    loadHistory();
+    loadDummyHistory();
+  }
+
+  List<Map<String, dynamic>> getDummyHistory() {
+    return [
+      {
+        "event_type": "Motion Detected",
+        "description": "Front entrance - Motion detected",
+        "device_id": "CAM-001",
+        "created_at": "2025-07-25T01:15:00Z",
+        "verified": true,
+      },
+      {
+        "event_type": "Fire Detection",
+        "description": "Kitchen area - Smoke detected",
+        "device_id": "SMK-002",
+        "created_at": "2025-07-25T00:45:00Z",
+        "verified": true,
+      },
+      {
+        "event_type": "Unknown Face Detected",
+        "description": "Backyard - Unrecognized person",
+        "device_id": "CAM-003",
+        "created_at": "2025-07-24T23:30:00Z",
+        "verified": true,
+      },
+      {
+        "event_type": "Intruder Alert",
+        "description": "Living room - Suspicious activity",
+        "device_id": "CAM-004",
+        "created_at": "2025-07-24T22:10:00Z",
+        "verified": true,
+      },
+      {
+        "event_type": "Motion Detected",
+        "description": "Garage - Vehicle movement",
+        "device_id": "CAM-005",
+        "created_at": "2025-07-24T20:05:00Z",
+        "verified": true,
+      },
+      {
+        "event_type": "Motion Detected",
+        "description": "Side gate - Person walking",
+        "device_id": "CAM-006",
+        "created_at": "2025-07-24T18:20:00Z",
+        "verified": true,
+      },
+      {
+        "event_type": "Fire Detection",
+        "description": "Garage - Heat signature detected",
+        "device_id": "SMK-007",
+        "created_at": "2025-07-24T15:45:00Z",
+        "verified": true,
+      },
+    ];
   }
 
   Future<void> loadHistory() async {
@@ -39,6 +93,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
         loading = false;
       });
     }
+  }
+
+  Future<void> loadDummyHistory() async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    
+    if (!mounted) return;
+
+    setState(() {
+      events = getDummyHistory();
+      loading = false;
+    });
   }
 
   IconData getIcon(String eventType) {

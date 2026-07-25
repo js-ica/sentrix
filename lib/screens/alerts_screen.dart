@@ -23,7 +23,43 @@ class _AlertsScreenState extends State<AlertsScreen> {
   @override
   void initState() {
     super.initState();
-    loadEvents();
+    loadDummyAlerts();
+  }
+
+
+  List<Map<String, dynamic>> getDummyAlerts() {
+    return [
+      {
+        "event_type": "Motion Detected",
+        "description": "Front door camera - Motion detected at entrance",
+        "created_at": "2025-07-25T01:15:00Z",
+        "verified": true,
+      },
+      {
+        "event_type": "Fire Detection",
+        "description": "Kitchen smoke detector - Smoke detected in kitchen area",
+        "created_at": "2025-07-25T00:45:00Z",
+        "verified": true,
+      },
+      {
+        "event_type": "Unknown Face Detected",
+        "description": "Backyard camera - Unrecognized person detected",
+        "created_at": "2025-07-24T23:30:00Z",
+        "verified": true,
+      },
+      {
+        "event_type": "Intruder Alert",
+        "description": "Living room camera - Suspicious movement detected",
+        "created_at": "2025-07-24T22:10:00Z",
+        "verified": true,
+      },
+      {
+        "event_type": "Motion Detected",
+        "description": "Garage camera - Vehicle movement detected",
+        "created_at": "2025-07-24T20:05:00Z",
+        "verified": true,
+      },
+    ];
   }
 
 
@@ -80,6 +116,18 @@ class _AlertsScreenState extends State<AlertsScreen> {
   }
 
 
+  Future<void> loadDummyAlerts() async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    
+    if (!mounted) return;
+
+    setState(() {
+      events = getDummyAlerts();
+      loading = false;
+    });
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -123,6 +171,8 @@ class _AlertsScreenState extends State<AlertsScreen> {
                     final event = events[index];
 
 
+                    final isVerified = event["verified"] == true;
+                    
                     return Card(
 
                       color: DesignSystem.card,
@@ -135,9 +185,11 @@ class _AlertsScreenState extends State<AlertsScreen> {
                       child: ListTile(
 
 
-                        leading: const Icon(
-                          Icons.warning_rounded,
-                          color: Colors.red,
+                        leading: Icon(
+                          isVerified 
+                            ? Icons.verified_rounded 
+                            : Icons.warning_rounded,
+                          color: isVerified ? Colors.green : Colors.red,
                           size: 35,
                         ),
 
@@ -161,15 +213,67 @@ class _AlertsScreenState extends State<AlertsScreen> {
 
 
 
-                        subtitle: Text(
+                        subtitle: Column(
 
-                          "${event["description"] ?? ""}\n\n${event["created_at"].toString().substring(0,10)}",
+                          crossAxisAlignment: CrossAxisAlignment.start,
 
-                          style: const TextStyle(
+                          children: [
 
-                            color: Colors.white70,
+                            Text(
 
-                          ),
+                              "${event["description"] ?? ""}\n\n${event["created_at"].toString().substring(0,10)}",
+
+                              style: const TextStyle(
+
+                                color: Colors.white70,
+
+                              ),
+
+                            ),
+
+                            if (isVerified) ...[
+                              const SizedBox(height: 8),
+
+                              Container(
+
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+
+                                decoration: BoxDecoration(
+                                  color: Colors.green.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: Colors.green,
+                                    width: 1,
+                                  ),
+                                ),
+
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.check_circle,
+                                      color: Colors.green,
+                                      size: 14,
+                                    ),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      "Verified on Solana",
+                                      style: TextStyle(
+                                        color: Colors.green,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                              ),
+                            ],
+
+                          ],
 
                         ),
 
