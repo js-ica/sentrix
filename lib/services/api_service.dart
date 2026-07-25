@@ -3,8 +3,8 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
 
-  // Android Emulator
-  static const String baseUrl = "http://10.0.2.2:5000/api";
+  // Online Sentrix Backend (Render)
+  static const String baseUrl = "https://sentrix-backend-675v.onrender.com/api";
 
 
   // ================= LOGIN =================
