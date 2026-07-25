@@ -197,7 +197,11 @@ class ApiService {
     print("=========================================");
 
 
-    return jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      return [];
+    }
 
   }
 

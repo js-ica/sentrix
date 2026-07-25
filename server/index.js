@@ -5,6 +5,7 @@ const cors = require('cors');
 const mqtt = require('mqtt');
 const axios = require('axios');
 const { Server } = require('socket.io');
+const sqlite3 = require('sqlite3').verbose();
 
 const app = express();
 app.use(cors());
@@ -24,6 +25,42 @@ const client = mqtt.connect(MQTT_URL);
 const history = [];
 const latest = {};
 
+// Initialize SQLite database
+const db = new sqlite3.Database('./sentrix.db', (err) => {
+  if (err) {
+    console.error('Error opening database:', err);
+  } else {
+    console.log('Connected to SQLite database');
+  }
+});
+
+// Create tables if they don't exist
+db.serialize(() => {
+  db.run(`CREATE TABLE IF NOT EXISTS events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    device_id TEXT,
+    event_type TEXT,
+    description TEXT,
+    verified INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`, (err) => {
+    if (err) console.error('Error creating events table:', err);
+    else console.log('Events table ready');
+  });
+
+  db.run(`CREATE TABLE IF NOT EXISTS devices (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    device_name TEXT,
+    device_id TEXT UNIQUE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`, (err) => {
+    if (err) console.error('Error creating devices table:', err);
+    else console.log('Devices table ready');
+  });
+});
+
 client.on('connect', () => {
   console.log('Connected to MQTT broker at', MQTT_URL);
   client.subscribe('sentrix/+/telemetry', (err) => {
@@ -41,6 +78,9 @@ client.on('message', (topic, msg) => {
     latest[botId] = payload;
     io.emit('telemetry', entry);
 
+    // Save event to database
+    saveEventToDatabase(botId, payload);
+
     // Basic alert forwarding: if payload contains motion=true, send alert
     if (payload.motion === true || payload.motion === 'true' || payload.motion === 'detected') {
       forwardAlert(botId, payload);
@@ -49,6 +89,28 @@ client.on('message', (topic, msg) => {
     console.error('Invalid MQTT message', e);
   }
 });
+
+// Save event to database
+function saveEventToDatabase(botId, payload) {
+  const eventType = payload.motion ? 'Motion Detected' : 
+                    payload.smoke ? 'Fire Detection' : 
+                    payload.temperature ? 'Temperature Alert' : 'Sensor Event';
+  
+  const description = payload.motion ? `Motion detected on ${botId}` :
+                      payload.smoke ? `Smoke detected on ${botId}` :
+                      payload.temperature ? `Temperature: ${payload.temperature}°C on ${botId}` :
+                      `Event on ${botId}`;
+
+  const stmt = db.prepare(`INSERT INTO events (device_id, event_type, description, verified) VALUES (?, ?, ?, ?)`);
+  stmt.run(botId, eventType, description, 0, function(err) {
+    if (err) {
+      console.error('Error saving event:', err);
+    } else {
+      console.log('Event saved to database:', eventType, '- ID:', this.lastID);
+    }
+  });
+  stmt.finalize();
+}
 
 function forwardAlert(botId, payload) {
   const alert = {
@@ -95,6 +157,46 @@ app.get('/sensors', (req, res) => {
 
 app.get('/history', (req, res) => {
   res.json(history.slice(0, 100));
+});
+
+// Get events for a specific user
+app.get('/events/:userId', (req, res) => {
+  const userId = req.params.userId;
+  const query = `SELECT * FROM events WHERE user_id = ? ORDER BY created_at DESC LIMIT 100`;
+  
+  db.all(query, [userId], (err, rows) => {
+    if (err) {
+      console.error('Error fetching events:', err);
+      return res.status(500).json({ error: 'Failed to fetch events' });
+    }
+    res.json(rows);
+  });
+});
+
+// Add event endpoint (for testing/manual alerts)
+app.post('/events', (req, res) => {
+  const { user_id, device_id, event_type, description } = req.body;
+  
+  if (!user_id || !device_id || !event_type) {
+    return res.status(400).json({ error: 'user_id, device_id, and event_type are required' });
+  }
+
+  const query = `INSERT INTO events (user_id, device_id, event_type, description, verified) VALUES (?, ?, ?, ?, ?)`;
+  
+  db.run(query, [user_id, device_id, event_type, description || '', 0], function(err) {
+    if (err) {
+      console.error('Error adding event:', err);
+      return res.status(500).json({ error: 'Failed to add event' });
+    }
+    
+    // Fetch the created event
+    db.get(`SELECT * FROM events WHERE id = ?`, [this.lastID], (err, row) => {
+      if (err) {
+        return res.status(500).json({ error: 'Failed to fetch created event' });
+      }
+      res.status(201).json(row);
+    });
+  });
 });
 
 app.post('/control', (req, res) => {
