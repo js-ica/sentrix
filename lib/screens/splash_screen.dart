@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'login_screen.dart';
+import 'home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   static const String routeName = '/';
@@ -23,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
       Navigator.pushReplacementNamed(
         context,
-        LoginScreen.routeName,
+        HomeScreen.routeName,
       );
     });
   }
