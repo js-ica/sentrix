@@ -28,35 +28,66 @@ class _AlertsScreenState extends State<AlertsScreen> {
 
 
   List<Map<String, dynamic>> getDummyAlerts() {
+    final now = DateTime.now();
     return [
       {
         "event_type": "Motion Detected",
         "description": "Front door camera - Motion detected at entrance",
-        "created_at": "2025-07-25T01:15:00Z",
+        "created_at": now.subtract(const Duration(minutes: 15)).toIso8601String(),
         "verified": true,
       },
       {
         "event_type": "Fire Detection",
         "description": "Kitchen smoke detector - Smoke detected in kitchen area",
-        "created_at": "2025-07-25T00:45:00Z",
+        "created_at": now.subtract(const Duration(hours: 2)).toIso8601String(),
         "verified": true,
       },
       {
         "event_type": "Unknown Face Detected",
         "description": "Backyard camera - Unrecognized person detected",
-        "created_at": "2025-07-24T23:30:00Z",
+        "created_at": now.subtract(const Duration(hours: 3)).toIso8601String(),
         "verified": true,
       },
       {
         "event_type": "Intruder Alert",
         "description": "Living room camera - Suspicious movement detected",
-        "created_at": "2025-07-24T22:10:00Z",
+        "created_at": now.subtract(const Duration(hours: 5)).toIso8601String(),
         "verified": true,
       },
       {
         "event_type": "Motion Detected",
         "description": "Garage camera - Vehicle movement detected",
-        "created_at": "2025-07-24T20:05:00Z",
+        "created_at": now.subtract(const Duration(hours: 7)).toIso8601String(),
+        "verified": true,
+      },
+      {
+        "event_type": "Water Leak",
+        "description": "Basement sensor - Water detected in basement",
+        "created_at": now.subtract(const Duration(hours: 10)).toIso8601String(),
+        "verified": false,
+      },
+      {
+        "event_type": "Door Open",
+        "description": "Back door - Door left open for more than 5 minutes",
+        "created_at": now.subtract(const Duration(hours: 12)).toIso8601String(),
+        "verified": true,
+      },
+      {
+        "event_type": "Glass Break",
+        "description": "Side window sensor - Glass breakage detected",
+        "created_at": now.subtract(const Duration(days: 1)).toIso8601String(),
+        "verified": true,
+      },
+      {
+        "event_type": "Motion Detected",
+        "description": "Driveway camera - Motion detected near vehicle",
+        "created_at": now.subtract(const Duration(days: 1, hours: 3)).toIso8601String(),
+        "verified": false,
+      },
+      {
+        "event_type": "Temperature Alert",
+        "description": "Thermostat - Unusual temperature spike detected",
+        "created_at": now.subtract(const Duration(days: 2)).toIso8601String(),
         "verified": true,
       },
     ];
